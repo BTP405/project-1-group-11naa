@@ -18,6 +18,7 @@ def viewSongList(conn, userID):
             count += 1
     else:
         print("Your song list is empty.")
+        
 
     return songs
 
@@ -64,19 +65,20 @@ x - Log Out''')
                 print("Invalid choice. Please choose between 1 (View Songs), 2 (Add Song), 3 (Delete Song), or 4 (Log Out)")
         if choice == "1":
             songs = viewSongList(conn, userID)
-            print("Enter the number of the song you want the lyrics to, or x to go back!")
-            while True:
-                try:
-                    userInput = input("> ")
-                    if userInput == 'x':
-                        break
-                    elif (int(userInput) > 0) and (int(userInput) <= len(songs)):
-                        api.songInfo(str(songs[int(userInput) - 1])[1:-2], True)
-                        break
-                    else:
-                        print('pick a valid integer')
-                except ValueError:
-                    print('please enter an integer')
+            if songs:
+                print("Enter the number of the song you want the lyrics to, or x to go back!")
+                while True:
+                    try:
+                        userInput = input("> ")
+                        if userInput == 'x':
+                            break
+                        elif (int(userInput) > 0) and (int(userInput) <= len(songs)):
+                            api.songInfo(str(songs[int(userInput) - 1])[1:-2], True)
+                            break
+                        else:
+                            print('pick a valid integer')
+                    except ValueError:
+                        print('please enter an integer')
         elif choice == "2":
             print("Enter the title of the song you want to add: ")
             title = input("> ")
