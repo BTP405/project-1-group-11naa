@@ -60,6 +60,7 @@ def saveSong(songArray, conn, userID):
                 elif (int(userInput) > 0) and (int(userInput) <= len(songArray)):
                     print('song added')
                     # add to database songArray[userInput - 1]['id']
+                    print(f'SONGARRAY: {str(songArray[int(userInput) - 1]['id'])}')
                     account.addToSongList(conn, userID, str(songArray[int(userInput) - 1]['id']))
                     # print(songArray[userInput - 1]['id'])  # test to see if correct selection, can remove
                     break

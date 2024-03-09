@@ -1,6 +1,5 @@
 import account
 import database
-import sqlite3
 
 ########## MAIN FUNCTION ##########
 def main():
@@ -22,14 +21,14 @@ def main():
 
         if choice == "1":
             userPass = database.getAccountDetails()
-            database.createAccount(conn, userPass[0], userPass[1])
+            database.createAccount(userPass[0], userPass[1])
         elif choice == "2":
             userPass = database.getAccountDetails()
             try:
-                userID = database.authenticateAccount(conn, userPass[0], userPass[1])
+                userID = database.authenticateAccount(userPass[0], userPass[1])
                 if userID is not None:
                     account.profileMenu(conn, userPass[0], userID)
-            except sqlite3.OperationalError:
+            except Exception as e:
                 print(f"No accounts exist in the database. Please make at least one account before trying to sign in.")
         else:
             print("Thank you for using Karaoke Songbook Manager!")

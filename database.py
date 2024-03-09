@@ -1,49 +1,41 @@
-import sqlite3
 import hashlib
+import os
+from dotenv import load_dotenv
+load_dotenv()
+import uuid
+import supabase
+url = os.environ.get("SUPABASE_URL")
+key = os.environ.get("SUPABASE_KEY")
 
-########### DATABASE FUNCTIONS ##########
+
+# ########### DATABASE FUNCTIONS ##########
 def createConnection():
     '''Creates a connection to the database that stores all the login info for users'''
-    conn = sqlite3.connect('karaoke.db')
-    return conn
+    supabase_client = supabase.create_client(url, key)
+    return supabase_client
 
-def createAccount(conn, username, password):
+supabase_client = createConnection()
+########### DATABASE FUNCTIONS ##########
+def createAccount(username, password):
     '''Create a new user account'''
     # use Secure Hash Algorithm for cryptographic security for the password
     # hexdigest for string representation of the hash
     hashedPass = hashlib.sha256(password.encode()).hexdigest()
-    # cursor object to execute SQL statements
-    cursor = conn.cursor()
-    cursor.execute('''
-                CREATE TABLE IF NOT EXISTS accounts
-                (id INTEGER PRIMARY KEY, username TEXT UNIQUE, password TEXT)
-                ''')
-    cursor.execute('''
-                CREATE TABLE IF NOT EXISTS favorites
-                (userID INTEGER, songID INTEGER UNIQUE, FOREIGN KEY(userID) REFERENCES accounts(id))
-                ''')
-    try:
-        # create user account
-        cursor.execute("INSERT INTO accounts (username, password) VALUES (?, ?)", (username, hashedPass))
+    # Create accounts table if not exists
+    supabase_client.table('accounts').insert({'username': username, 'password': hashedPass}).execute()
 
-        # then commit the change to the database
-        conn.commit()
-        print(f"User '{username}' created successfully!")
-    except sqlite3.IntegrityError:
-        print(f"Username '{username} already exists. Please choose a different one.")
-    cursor.close()
-
-def authenticateAccount(conn, username, password):
+def authenticateAccount(username, password):
     '''Authenticate a user account'''
     hashed_password = hashlib.sha256(password.encode()).hexdigest()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM accounts WHERE username=? AND password=?", (username, hashed_password))
-    account = cursor.fetchone()
-    cursor.close()
+    # Retrieve account from Supabase
+    response = supabase_client.table('accounts').select('*').eq('username', username).eq('password', hashed_password).execute()
+    print(f'Response: {response}')
+    account = response.data
+    # print(f'IDDDDDD: {account[0]['id']}')
     if account:
-        print("Authentication successful!")
+        print(f"Authentication successful!")
         # Return the userID
-        return account[0]
+        return account[0]['id']
     else:
         print("Invalid username or password.")
         return None
